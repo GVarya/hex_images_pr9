@@ -11,10 +11,6 @@ final imagesListProvider = StateNotifierProvider<ImagesListNotifier, List<HexIma
   return ImagesListNotifier();
 });
 
-final isLoggedInProvider = Provider<bool>((ref) {
-  return ref.watch(currentUserProvider) != null;
-});
-
 final authProvider = Provider<AuthOperations>((ref) {
   return AuthOperations(ref);
 });
