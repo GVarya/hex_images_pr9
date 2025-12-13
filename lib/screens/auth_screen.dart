@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/providers.dart';
+import 'home_screen.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -39,7 +40,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
       _loginUsernameController.text,
       _loginPasswordController.text,
     );
-    context.go('/home');
+    // context.go('/home');
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
   }
 
   void _handleRegister() {
@@ -48,7 +52,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
       _registerUsernameController.text,
       _registerPasswordController.text,
     );
-    context.go('/home');
+    // context.go('/home');
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
   }
 
   @override
