@@ -36,24 +36,24 @@ class AppTheme {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-              if (states.contains(MaterialState.disabled)) {
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+              if (states.contains(WidgetState.disabled)) {
                 return Colors.blue.shade400;
               }
               return Colors.blue.shade700;
             },
           ),
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
+          padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
             const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           ),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          textStyle: MaterialStateProperty.all<TextStyle>(
+          textStyle: WidgetStateProperty.all<TextStyle>(
             const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -64,10 +64,10 @@ class AppTheme {
 
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all<Color>(
+          foregroundColor: WidgetStateProperty.all<Color>(
             Colors.blue.shade700,
           ),
-          textStyle: MaterialStateProperty.all<TextStyle>(
+          textStyle: WidgetStateProperty.all<TextStyle>(
             const TextStyle(
               fontWeight: FontWeight.w500,
             ),
@@ -116,3 +116,4 @@ class AppTheme {
     );
   }
 }
+

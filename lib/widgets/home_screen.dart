@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hex_images/screens/settings/account_settings_screen.dart';
-import 'effects_screen.dart';
-import 'images_list_screen.dart';
-import 'image_import_screen.dart';
+import 'package:hex_images/screens/account_settings_screen.dart';
+import '../screens/effects_screen.dart';
+import '../screens/images_list_screen.dart';
+import '../screens/image_import_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);

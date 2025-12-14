@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/auth_screen.dart';
-import 'screens/home_screen.dart';
+import 'widgets/home_screen.dart';
 import 'theme.dart';
 import 'providers/providers.dart';
 

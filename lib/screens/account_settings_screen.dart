@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hex_images/screens/auth_screen.dart';
-import '../device_connection.dart';
+import 'device_connection.dart';
 import 'dart:ui';
 
 
