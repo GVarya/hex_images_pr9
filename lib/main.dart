@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hex_images/providers/auth_operations.dart';
-import 'package:hex_images/providers/providers.dart';
 import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 import 'theme.dart';
+import 'providers/providers.dart';
 
 void main() {
   runApp(
@@ -21,12 +20,19 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
 
-    final currentUser = ref.watch(currentUserProvider);
-
     return MaterialApp(
       title: 'Hex Image Editor',
       theme: AppTheme.lightTheme,
-      home: currentUser != null ? const HomeScreen() : const AuthScreen(),
+      home: authState.isLoading
+          ? const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      )
+          : authState.isAuthenticated
+          ? const HomeScreen()
+          : const AuthScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

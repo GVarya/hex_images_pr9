@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../model/user.dart';
-
 
 class AuthOperations {
   static final Map<String, String> _users = {
@@ -9,6 +7,7 @@ class AuthOperations {
     'test': 'test123',
     'v': 'v'
   };
+
   User? _currentUser;
 
   User? get currentUser => _currentUser;
@@ -63,93 +62,39 @@ class AuthOperations {
     _currentUser = null;
   }
 
-  bool changePassword(String oldPassword, String newPassword) {
-    if (_currentUser == null) {
-      print('Пользователь не авторизован');
-      return false;
-    }
-
-    if (_users[_currentUser!.username] != oldPassword) {
-      print('Неверный текущий пароль');
-      return false;
-    }
-
-    if (newPassword.length < 6) {
-      print('Новый пароль должен быть не менее 6 символов');
-      return false;
-    }
-
-    _users[_currentUser!.username] = newPassword;
-    print('Пароль изменён для: ${_currentUser!.username}');
-    return true;
-  }
-
-  User? getProfile() {
-    if (_currentUser == null) {
-      print('Пользователь не авторизован');
-      return null;
-    }
-    return _currentUser;
-  }
-
-  bool updateProfile({
-    required String username,
-    String? email,
-  }) {
-    if (_currentUser == null) {
-      print('Пользователь не авторизован');
-      return false;
-    }
-
-    _currentUser = User(
-      id: _currentUser!.id,
-      username: username,
-      createdAt: _currentUser!.createdAt,
-      lastLogin: DateTime.now(),
-    );
-
-    print('Профиль обновлен: $username');
-    return true;
-  }
-
-  bool isSessionValid() {
-    return _currentUser != null;
-  }
-
-  List<String> getAllUsers() {
-    return _users.keys.toList();
-  }
-
-  bool deleteAccount(String password) {
-    if (_currentUser == null) {
-      print('Пользователь не авторизован');
-      return false;
-    }
-
-    if (_users[_currentUser!.username] != password) {
-      print('Неверный пароль');
-      return false;
-    }
-
-    final username = _currentUser!.username;
-    _users.remove(username);
-    _currentUser = null;
-
-    print('Аккаунт удален: $username');
-    return true;
-  }
-
   static String _generateId() {
     return DateTime.now().millisecondsSinceEpoch.toString();
   }
 }
 
-final authStateProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((ref) {
-  return AuthStateNotifier();
-});
+class AuthState {
+  final AuthStatus status;
+  final User? user;
+  final String? error;
 
+  const AuthState._({
+    required this.status,
+    this.user,
+    this.error,
+  });
 
-enum AuthState {
+  factory AuthState.initial() => const AuthState._(status: AuthStatus.initial);
+  factory AuthState.loading() => const AuthState._(status: AuthStatus.loading);
+  factory AuthState.authenticated(User user) =>
+      AuthState._(status: AuthStatus.authenticated, user: user);
+  factory AuthState.unauthenticated() =>
+      const AuthState._(status: AuthStatus.unauthenticated);
+  factory AuthState.error(String error) =>
+      AuthState._(status: AuthStatus.error, error: error);
+
+  bool get isInitial => status == AuthStatus.initial;
+  bool get isLoading => status == AuthStatus.loading;
+  bool get isAuthenticated => status == AuthStatus.authenticated;
+  bool get isUnauthenticated => status == AuthStatus.unauthenticated;
+  bool get isError => status == AuthStatus.error;
+}
+
+enum AuthStatus {
   initial,
   loading,
   authenticated,
@@ -157,47 +102,48 @@ enum AuthState {
   error,
 }
 
-
 class AuthStateNotifier extends StateNotifier<AuthState> {
-  AuthStateNotifier() : super(AuthState.initial);
+  final AuthOperations _authOps = AuthOperations();
 
-  final _authOps = AuthOperations();
+  AuthStateNotifier() : super(AuthState.initial());
 
   Future<bool> loginWithState(String username, String password) async {
-    state = AuthState.loading;
+    state = AuthState.loading();
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 500));
 
       final success = _authOps.login(username, password);
-      if (success) {
-        state = AuthState.authenticated;
+      if (success && _authOps.currentUser != null) {
+        state = AuthState.authenticated(_authOps.currentUser!);
+        return true;
       } else {
-        state = AuthState.unauthenticated;
+        state = AuthState.unauthenticated();
+        return false;
       }
-      return success;
     } catch (e) {
-      state = AuthState.error;
+      state = AuthState.error('Ошибка входа: $e');
       print('Ошибка входа: $e');
       return false;
     }
   }
 
   Future<bool> registerWithState(String username, String password) async {
-    state = AuthState.loading;
+    state = AuthState.loading();
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 500));
 
       final success = _authOps.register(username, password);
-      if (success) {
-        state = AuthState.authenticated;
+      if (success && _authOps.currentUser != null) {
+        state = AuthState.authenticated(_authOps.currentUser!);
+        return true;
       } else {
-        state = AuthState.unauthenticated;
+        state = AuthState.unauthenticated();
+        return false;
       }
-      return success;
     } catch (e) {
-      state = AuthState.error;
+      state = AuthState.error('Ошибка регистрации: $e');
       print('Ошибка регистрации: $e');
       return false;
     }
@@ -205,7 +151,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
   void logout() {
     _authOps.logout();
-    state = AuthState.unauthenticated;
+    state = AuthState.unauthenticated();
   }
 
   User? getCurrentUser() {
@@ -216,4 +162,3 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
     return _authOps.isAuthenticated;
   }
 }
-

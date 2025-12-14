@@ -1,7 +1,6 @@
-import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 import '../providers/providers.dart';
 import '../model/hex_image.dart';
 
@@ -102,8 +101,16 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
           _widthController.text = gridWidth.toString();
           _heightController.text = gridHeight.toString();
 
-          // Загружаем grid из JSON данных
-          _deserializeGrid(image.data);
+          // Проверяем и загружаем grid
+          if (image.data.isNotEmpty && image.data[0].isNotEmpty) {
+            grid = List.generate(gridHeight, (y) =>
+                List.generate(gridWidth, (x) =>
+                (y < image.data.length && x < image.data[y].length)
+                    ? image.data[y][x]
+                    : Colors.white));
+          } else {
+            _initializeGrid();
+          }
           isLoading = false;
         });
       } else if (mounted) {
@@ -117,38 +124,6 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
       gridHeight,
           (y) => List.generate(gridWidth, (x) => Colors.white),
     );
-  }
-
-  void _deserializeGrid(List<List<Color>> jsonData) {
-    // try {
-    //   final decodedData = jsonDecode(jsonData);
-    //   final colors = decodedData['colors'] as List;
-    //
-    //   grid = [];
-    //   for (var rowIndex = 0; rowIndex < gridHeight; rowIndex++) {
-    //     final row = <Color>[];
-    //     for (var colIndex = 0; colIndex < gridWidth; colIndex++) {
-    //       final colorValue = colors[rowIndex * gridWidth + colIndex] as int;
-    //       row.add(Color(colorValue));
-    //     }
-    //     grid.add(row);
-    //   }
-    // } catch (e) {
-    //   print('Ошибка при десериализации grid: $e');
-    //   _initializeGrid();
-    // }
-    grid = jsonData;
-    _initializeGrid();
-  }
-
-  String _serializeGrid() {
-    final colors = <int>[];
-    for (var row in grid) {
-      for (var color in row) {
-        colors.add(color.value);
-      }
-    }
-    return jsonEncode({'colors': colors});
   }
 
   void _paintCell(int x, int y) {
@@ -202,7 +177,8 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
     });
   }
 
-  void _saveImage() {
+
+  void _saveImage() async {
     final name = _nameController.text.trim();
 
     if (name.isEmpty) {
@@ -214,43 +190,47 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
 
     try {
       final imageOps = ref.read(imageOperationsProvider);
-      final gridData = _serializeGrid();
+      final user = ref.read(currentUserProvider);
+
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Пользователь не авторизован')),
+        );
+        return;
+      }
 
       if (isEditing && currentImageId != null) {
-        // Обновляем существующее изображение
-        imageOps.updateImage(
-          HexImage(
-            id: currentImageId!,
-            title: name,
-            width: gridWidth,
-            height: gridHeight,
-            data: grid,
-            createdAt: DateTime.now(),
-            userId: 'default_user', updatedAt: DateTime.now(),
-          ),
-        );
+        final existingImage = imageOps.getImageById(currentImageId!);
+        if (existingImage != null) {
+          imageOps.updateImage(
+            existingImage.copyWith(
+              title: name,
+              width: gridWidth,
+              height: gridHeight,
+              data: grid,
+              updatedAt: DateTime.now(),
+            ),
+          );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Изображение "$name" обновлено')),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Изображение "$name" обновлено')),
+          );
+        }
       } else {
-        // Создаем новое изображение
-        imageOps.createImage(
+        final imageId = imageOps.createImage(
           title: name,
           width: gridWidth,
           height: gridHeight,
           data: grid,
         );
 
-        // Обновляем список изображений через провайдер
-        ref.refresh(imagesListProvider);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Изображение "$name" создано')),
-        );
+        if (imageId.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Изображение "$name" создано')),
+          );
+        }
       }
 
-      // Возвращаемся на предыдущий экран
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -284,7 +264,6 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
         children: [
-          // Панель с информацией о проекте
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -356,7 +335,6 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
             ),
           ),
           const Divider(),
-          // Палитра цветов
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: SingleChildScrollView(
@@ -387,7 +365,6 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                     ),
                   )),
                   const SizedBox(width: 12),
-                  // Инструменты
                   GestureDetector(
                     onTap: () => setState(() => currentTool = 'eraser'),
                     child: Container(
@@ -426,7 +403,6 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
             ),
           ),
           const Divider(),
-          // Сетка для рисования
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -464,7 +440,6 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
               ),
             ),
           ),
-          // Кнопки действия
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(

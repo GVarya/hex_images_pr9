@@ -1,7 +1,5 @@
-
-
 import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hex_images/providers/providers.dart';
 import '../model/hex_image.dart';
@@ -11,7 +9,7 @@ class ImageOperations {
 
   ImageOperations(this.ref);
 
-  List getUserImages() {
+  List<HexImage> getUserImages() {
     final user = ref.read(currentUserProvider);
     final allImages = ref.read(imagesListProvider);
 
@@ -47,7 +45,7 @@ class ImageOperations {
       description: description,
       width: width,
       height: height,
-      data: data ?? [[]],
+      data: data ?? List.generate(height, (y) => List.generate(width, (x) => Colors.white)),
       userId: user.id,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

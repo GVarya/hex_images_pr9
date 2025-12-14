@@ -11,7 +11,7 @@ class AccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final images = ref.watch(imagesListProvider);
-    final auth = ref.read(authProvider);
+    final auth = ref.read(authStateProvider);
 
     if (user == null) {
       return Scaffold(
@@ -108,7 +108,7 @@ class AccountScreen extends ConsumerWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                auth.logout();
+                // auth.logout();
                 context.go('/');
               },
               style: ElevatedButton.styleFrom(

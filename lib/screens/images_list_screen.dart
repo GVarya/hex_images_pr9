@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/image_operations.dart';
@@ -125,54 +124,53 @@ class ImagesListScreen extends ConsumerWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.hexagon_outlined,
-              size: 80,
-              color: Colors.grey.shade300,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'У вас пока нет изображений',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.grey.shade600,
+      child: SingleChildScrollView(  // Добавили SingleChildScrollView
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,  // Изменили на min
+            children: [
+              Icon(
+                Icons.hexagon_outlined,
+                size: 80,
+                color: Colors.grey.shade300,
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Создайте первое изображение или импортируйте из файла',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade500,
+              const SizedBox(height: 20),
+              Text(
+                'У вас пока нет изображений',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ImageEditorScreen(
-                      imageId: null,
-                      projectName: 'Новый проект',
-                      gridWidth: 16,
-                      gridHeight: 16,
+              const SizedBox(height: 10),
+              Text(
+                'Создайте первое изображение или импортируйте из файла',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey.shade500,
+                ),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ImageEditorScreen(
+                        imageId: null,
+                        projectName: 'Новый проект',
+                        gridWidth: 16,
+                        gridHeight: 16,
+                      ),
                     ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Создать изображение'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade700,
-                foregroundColor: Colors.white,
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Создать изображение'),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

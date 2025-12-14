@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:hex_images/screens/auth_screen.dart';
 import '../device_connection.dart';
+import 'dart:ui';
 
 
 class AccountSettingsScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   bool notificationsEnabled = true;
   bool autoSaveEnabled = true;
   bool darkModeEnabled = false;
+
 
   void _showEditDialog(String field, String currentValue) {
     final controller = TextEditingController(text: currentValue);
@@ -38,7 +40,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
           TextButton(
             onPressed: () {
               setState(() {
-                  userName = controller.text;
+                userName = controller.text;
               });
               Navigator.pop(context);
             },
@@ -50,7 +52,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   }
 
   void _navigateToDeviceConnection() {
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => const DeviceConnectionScreen()),
     );
   }
@@ -121,7 +123,13 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+
+                  builder: (context) => const AuthScreen(),
+                ),
+              );              ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Вы вышли из аккаунта')),
               );
             },
